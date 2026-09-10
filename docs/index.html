@@ -60,6 +60,8 @@
   p{margin:0 0 14px;color:var(--muted);max-width:64ch;font-size:15.5px;line-height:1.66;}
   p:last-child{margin-bottom:0;}
   p b{color:var(--ink);font-weight:600;}
+  p a{color:var(--ink);text-decoration:underline;text-underline-offset:2px;text-decoration-color:var(--faint);}
+  p a:hover{text-decoration-color:var(--ink);}
 
   .grid{display:grid;grid-template-columns:1fr;gap:28px;align-items:start;}
   @media(min-width:760px){.grid{grid-template-columns:1.05fr .95fr;gap:44px;}}
@@ -128,7 +130,7 @@
     <div class="grid">
       <div>
         <h2>A director's instrument</h2>
-        <p>Design Mode is a full design app, with controls for type, colour, effects and tokens. We took it and removed the controls that set a style value. What is left is the handful a director reaches for on a live page: point, move, space, measure, comment.</p>
+        <p>Design Mode is a full design app developed by <a href="https://github.com/SandeepBaskaran/design-mode">Sandeep Baskaran</a>, with controls for type, colour, effects and tokens. We took it and removed the controls that set a style value. What is left is the handful a director reaches for on a live page: point, move, space, measure, comment.</p>
         <p><b>The styling goes to Claude Code.</b> You point and judge; the coding agent writes the CSS. You keep the taste and the decision.</p>
       </div>
       <div class="panel" role="img" aria-label="The stripped panel">
