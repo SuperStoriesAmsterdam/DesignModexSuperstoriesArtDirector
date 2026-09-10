@@ -1911,7 +1911,7 @@ browser.runtime.onMessage.addListener((msg, _, sendResponse) => {
     // server so the agent's next get_changes sees it.
     case 'SEND_TO_AGENT': {
       if (!isConnected() || !isAgentConnected()) { sendResponse({ ok: false, error: 'No agent connected' }); break; }
-      sendResponse({ ok: true, handoff: stageAgentHandoff() });
+      sendResponse({ ok: true, handoff: stageAgentHandoff(msg.skill) });
       break;
     }
 

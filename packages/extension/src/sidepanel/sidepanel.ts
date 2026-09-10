@@ -1881,6 +1881,18 @@ async function revertGroup(groupKey: string) {
 }
 
 async function copyPrompt() { const res = await send({ type: 'SP_EXPORT', format: 'markdown' }); const output = res.output || res.markdown || ''; if (output) { await navigator.clipboard.writeText(output); const btn = root.querySelector('#dm-copy-prompt-btn'); if (btn) { btn.textContent = 'Copied!'; setTimeout(() => render(), 1500); } } }
+// Art Director fork: skill buttons. Stage the handoff with a `skill` marker so
+// the agent's next get_changes runs that SuperStories skill (e.g. /design-inspect)
+// on the current page and changes.
+async function runSkill(skill: string) {
+  await refreshMcpStatus();
+  if (mcpState !== 'connected') { sendAgentHelpOpen = true; render(); return; }
+  const res = await send({ type: 'SP_SEND_TO_AGENT', skill });
+  if (res?.ok) {
+    const btn = root.querySelector('#dm-skill-' + skill);
+    if (btn) { (btn as HTMLElement).textContent = 'Sent to Claude'; setTimeout(() => render(), 1600); }
+  }
+}
 async function sendToAgent() {
   await refreshMcpStatus();
   if (mcpState !== 'connected') { sendAgentHelpOpen = true; render(); return; }
@@ -6397,9 +6409,14 @@ function renderStickyBottom(): string {
   // works — the click handler is the gate, not CSS.
   const sendS = 'flex:1;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:500;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px;' +
     (sendDis ? 'background:var(--dm-btn-bg-disabled);border:1px solid var(--dm-btn-border-disabled);color:var(--dm-text-dim);cursor:not-allowed;opacity:0.5;' : 'background:var(--dm-accent-bg);border:1px solid var(--dm-accent-border);color:var(--dm-accent);cursor:pointer;');
-  return '<div style="display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--dm-separator-strong);flex-shrink:0;background:var(--dm-bg);position:sticky;bottom:0;z-index:10;">' +
+  // Art Director fork: a skills row sits above the Copy / Send row. Each button
+  // stages the handoff with a `skill` marker so the agent runs that pass.
+  const skillBtn = 'width:100%;padding:7px 12px;border-radius:8px;font-size:11px;font-weight:500;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--dm-btn-bg);border:1px solid var(--dm-btn-border);color:var(--dm-text-secondary);cursor:pointer;';
+  return '<div style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;border-top:1px solid var(--dm-separator-strong);flex-shrink:0;background:var(--dm-bg);position:sticky;bottom:0;z-index:10;">' +
+    '<button id="dm-skill-design-inspect" data-dm-action="run-skill" data-dm-skill="design-inspect" title="Run /design-inspect on this page through Claude Code" style="' + skillBtn + '">' + icon('search', 12) + ' Design inspect</button>' +
+    '<div style="display:flex;gap:8px;">' +
     '<button id="dm-copy-prompt-btn" data-dm-action="copy-prompt" title="' + escapeAttr(copyTitle) + '" style="' + copyS + '">' + icon('clipboard', 13) + ' Copy as Prompt</button>' +
-    '<button id="dm-send-agent-btn" data-dm-action="send-to-agent"' + (sendDis ? ' disabled aria-disabled="true"' : '') + ' title="' + escapeAttr(sendTitle) + '" style="' + sendS + '">' + icon('send', 13) + ' Send to Agent</button></div>';
+    '<button id="dm-send-agent-btn" data-dm-action="send-to-agent"' + (sendDis ? ' disabled aria-disabled="true"' : '') + ' title="' + escapeAttr(sendTitle) + '" style="' + sendS + '">' + icon('send', 13) + ' Send to Agent</button></div></div>';
 }
 
 // First-run guidance for "Send to Agent": shown when the button is clicked
@@ -9778,6 +9795,7 @@ function setupDelegation() {
         case 'hover-guide-proceed': hoverGuideProceeded = true; render(); break;
         case 'copy-prompt': copyPrompt(); break;
         case 'send-to-agent': sendToAgent(); break;
+        case 'run-skill': runSkill(actionBtn.dataset.dmSkill || 'design-inspect'); break;
         case 'send-agent-help-close': sendAgentHelpOpen = false; render(); break;
         case 'send-agent-help-mcp': sendAgentHelpOpen = false; helpOpen = false; contributeOpen = false; settingsOpen = false; mcpOpen = true; render(); break;
         case 'toggle-theme': toggleTheme(); break;

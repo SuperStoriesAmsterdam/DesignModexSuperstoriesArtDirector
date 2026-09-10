@@ -40,6 +40,9 @@ export interface AgentHandoff {
   requestedAt: number;
   pageUrl: string;
   pageTitle: string;
+  // Optional SuperStories skill to run on the changes (e.g. 'design-inspect'),
+  // set by a skill button in the panel. Rides through get_changes to the agent.
+  skill?: string;
 }
 
 export interface ChangeSession {

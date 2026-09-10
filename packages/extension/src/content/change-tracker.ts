@@ -93,7 +93,7 @@ let ws: WebSocket | null = null;
 
 // Set when the user clicks "Send to Agent"; travels to the MCP server so
 // the agent's next get_changes sees the explicit "these are ready" marker.
-interface AgentHandoff { requestedAt: number; pageUrl: string; pageTitle: string; }
+interface AgentHandoff { requestedAt: number; pageUrl: string; pageTitle: string; skill?: string; }
 let pendingHandoff: AgentHandoff | null = null;
 
 export function getStyleChanges() { return [...styleChanges]; }
@@ -1244,8 +1244,8 @@ export function getChangeReport() {
 // the page live via getChangeReport) and push it to the local server's
 // state (local get_changes reads server-side). Returns the marker so the
 // panel can confirm the staging.
-export function stageAgentHandoff(): AgentHandoff {
-  pendingHandoff = { requestedAt: Date.now(), pageUrl: location.href, pageTitle: document.title };
+export function stageAgentHandoff(skill?: string): AgentHandoff {
+  pendingHandoff = { requestedAt: Date.now(), pageUrl: location.href, pageTitle: document.title, ...(skill ? { skill } : {}) };
   transportSend({ type: 'HANDOFF', payload: pendingHandoff });
   return pendingHandoff;
 }

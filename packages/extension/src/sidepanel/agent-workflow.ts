@@ -25,7 +25,10 @@ server — drive them live; do not look for task files on disk.
   comments — a \`region\` box ({x,y,w,h} in document pixels) instead of an
   element. \`tokenChanges\` lists CSS custom properties the user redefined,
   each with the \`scopeSelector\` it's declared on. A \`handoff\` field means
-  the user explicitly pressed "Send to Agent".
+  the user explicitly pressed "Send to Agent". If \`handoff.skill\` is set (for
+  example \`design-inspect\`), the user pressed a skill button: run that
+  SuperStories skill / slash-command on the current page and its changes,
+  report what it found, and stop — do not apply edits unless the skill says to.
 - \`get_screenshot\` — capture a \`selector\`, \`elementId\`, or region for
   visual context.
 - \`export_changes\` — emit the edits as CSS / Tailwind / SCSS / JSX.
@@ -37,8 +40,11 @@ server — drive them live; do not look for task files on disk.
 ## Workflow
 1. Call \`get_session_summary\`. If the extension isn't connected, ask the
    user to open the Design Mode side panel, then stop.
-2. Call \`get_changes\`. Build a task list from the token/style/text/DOM
-   changes and the comments.
+2. Call \`get_changes\`. If it returns a \`handoff.skill\` (e.g.
+   \`design-inspect\`), run that SuperStories skill on the current page and
+   changes, report, and stop; the steps below are only for applying edits.
+   Otherwise build a task list from the token/style/text/DOM changes and the
+   comments.
 3. For each item:
    - Call \`set_change_status\` with \`{ status: 'in_progress', ids: [id] }\`
      so the user sees a WIP badge on the row you're working.
