@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Design Mode</title>
+  <title>Art Director</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -23,7 +23,7 @@
       --destructive: oklch(0.704 0.191 22.216);
       --border: oklch(1 0 0 / 10%);
       --input: oklch(1 0 0 / 15%);
-      --ring: #0d99ff;
+      --ring: #E6E6EA;
       --radius: 0rem;
 
       /* dm-* mapped to shadcn tokens */
@@ -41,9 +41,9 @@
       --dm-input-border-hover: oklch(1 0 0 / 18%);
       --dm-separator: oklch(1 0 0 / 6%);
       --dm-separator-strong: oklch(1 0 0 / 10%);
-      --dm-accent: #0d99ff;
-      --dm-accent-bg: rgba(13,153,255,0.14);
-      --dm-accent-border: rgba(13,153,255,0.30);
+      --dm-accent: #E6E6EA;
+      --dm-accent-bg: rgba(255,255,255,0.12);
+      --dm-accent-border: rgba(255,255,255,0.24);
       --dm-danger: oklch(0.704 0.191 22.216);
       --dm-danger-bg: oklch(0.704 0.191 22.216 / 10%);
       --dm-danger-border: oklch(0.704 0.191 22.216 / 22%);
@@ -83,11 +83,11 @@
       --destructive: oklch(0.577 0.245 27.325);
       --border: oklch(0.922 0 0);
       --input: oklch(0.922 0 0);
-      --ring: #0d99ff;
+      --ring: #17181B;
       --radius: 0rem;
 
       /* dm-* mapped to shadcn tokens */
-      --dm-bg: oklch(1 0 0);
+      --dm-bg: #EBECEE;
       --dm-bg-secondary: oklch(0 0 0 / 4%);
       --dm-bg-tertiary: oklch(0 0 0 / 5%);
       --dm-bg-active: oklch(0 0 0 / 8%);
@@ -101,9 +101,9 @@
       --dm-input-border-hover: oklch(0 0 0 / 18%);
       --dm-separator: oklch(0 0 0 / 8%);
       --dm-separator-strong: oklch(0 0 0 / 10%);
-      --dm-accent: #0d99ff;
-      --dm-accent-bg: rgba(13,153,255,0.12);
-      --dm-accent-border: rgba(13,153,255,0.25);
+      --dm-accent: #17181B;
+      --dm-accent-bg: rgba(0,0,0,0.07);
+      --dm-accent-border: rgba(0,0,0,0.16);
       --dm-danger: oklch(0.577 0.245 27.325);
       --dm-danger-bg: oklch(0.577 0.245 27.325 / 8%);
       --dm-danger-border: oklch(0.577 0.245 27.325 / 18%);
@@ -135,7 +135,7 @@
          resizable window (the native side panel is always wide enough). */
       min-width: 320px;
       background: var(--dm-bg);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-size: 13px;
       color: var(--dm-text);
     }
@@ -167,7 +167,7 @@
       font-size: 11px;
       padding: 6px;
       outline: none;
-      font-family: 'SF Mono', Monaco, monospace;
+      font-family: inherit;
       transition: border-color 0.12s ease;
     }
     .dm-input:hover { border-color: var(--dm-input-border-hover); }
@@ -414,7 +414,7 @@
       flex-shrink: 0;
     }
     .dm-contrast-ratio {
-      font-family: SF Mono, Monaco, monospace;
+      font-family: inherit;
       font-size: 11px;
       color: var(--dm-text);
       letter-spacing: 0.2px;
@@ -613,7 +613,7 @@
       color: var(--dm-accent);
     }
     .dm-token-chip-count {
-      font-family: SF Mono, Monaco, monospace;
+      font-family: inherit;
       font-size: 9px;
       opacity: 0.7;
     }
@@ -655,7 +655,7 @@
       gap: 6px;
     }
     .dm-tokens-tab-count {
-      font-family: SF Mono, Monaco, monospace;
+      font-family: inherit;
       font-size: 9px;
       opacity: 0.7;
     }
@@ -834,7 +834,7 @@
       border-radius: 3px;
       background: var(--dm-bg-tertiary, var(--dm-bg-secondary));
       color: var(--dm-text-muted);
-      font-family: SF Mono, Monaco, monospace;
+      font-family: inherit;
       font-size: 8px;
       line-height: 1.6;
     }
@@ -845,17 +845,17 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-family: SF Mono, Monaco, monospace;
+      font-family: inherit;
       font-size: 10px;
       color: var(--dm-text);
     }
-    .dm-token-name-detected { font-family: SF Mono, Monaco, monospace; color: var(--dm-text-secondary); }
+    .dm-token-name-detected { font-family: inherit; color: var(--dm-text-secondary); }
     .dm-token-value {
       flex: 1;
       min-width: 0;
       font-size: 10px;
       padding: 4px 6px;
-      font-family: SF Mono, Monaco, monospace;
+      font-family: inherit;
     }
     .dm-token-uses {
       flex-shrink: 0;
@@ -894,7 +894,7 @@
       margin-left: auto;
       font-size: 9px;
       color: var(--dm-text-dim);
-      font-family: SF Mono, Monaco, monospace;
+      font-family: inherit;
     }
     .dm-token-drift {
       flex-shrink: 0;
@@ -903,7 +903,7 @@
       gap: 2px;
       padding: 2px 6px;
       font-size: 9px;
-      font-family: SF Mono, Monaco, monospace;
+      font-family: inherit;
       color: #f59e0b;
       background: rgba(245, 158, 11, 0.14);
       border-radius: 9999px;
@@ -1074,7 +1074,7 @@
     }
     .dm-token-badge-open { outline: 1px solid var(--dm-accent); }
     .dm-token-badge-name {
-      font-family: SF Mono, Monaco, monospace;
+      font-family: inherit;
       font-size: 9px;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1163,7 +1163,7 @@
       background: none;
       border: none;
       padding: 4px 6px;
-      font-family: 'SF Mono', Monaco, monospace;
+      font-family: inherit;
       font-size: 11px;
       color: var(--dm-text);
       outline: none;

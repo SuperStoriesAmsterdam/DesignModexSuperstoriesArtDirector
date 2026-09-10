@@ -36,6 +36,7 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "web-ext": "^10.6.0"
   },
   "overrides": {

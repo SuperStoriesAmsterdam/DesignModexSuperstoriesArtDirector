@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Art Director</title>
+<meta name="description" content="A stripped-down Design Mode: point, move, measure and comment on a live page, and Claude Code builds it. designmode.app x superstories.com">
+<style>
+  :root{
+    --bg:#0B0B10; --depth:#17171C; --surface:#121219; --surface-2:#17171F; --chip:#16161D;
+    --ink:#ECECEF; --muted:#9797A3; --faint:#5C5C69;
+    --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.055);
+    --tone:#E6E6EA; --tone-weak:rgba(255,255,255,.10); --tone-fg:#101014;
+    --display:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    --body:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+  :root[data-theme="light"]{
+    --bg:#EBECEE; --depth:#EBECEE; --surface:#FBFBFC; --surface-2:#E4E5E8; --chip:#EEEFF1;
+    --ink:#1A1B1E; --muted:#696B72; --faint:#9A9CA3;
+    --line:rgba(0,0,0,.11); --line-2:rgba(0,0,0,.06);
+    --tone:#17181B; --tone-weak:rgba(0,0,0,.07); --tone-fg:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  html{color-scheme:dark;}
+  body{
+    margin:0;color:var(--ink);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;
+    background:radial-gradient(120% 70% at 50% -8%, var(--depth) 0%, transparent 60%), var(--bg);
+    background-attachment:fixed;
+  }
+  :root[data-theme="light"] body{background:var(--bg);}
+  .wrap{max-width:940px;margin:0 auto;padding:clamp(20px,4vw,44px) clamp(20px,5vw,52px);}
+
+  .top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding-bottom:22px;border-bottom:1px solid var(--line);}
+  .brand{display:flex;flex-direction:column;gap:8px;}
+  .kicker{font-family:var(--display);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+  .wordmark{font-family:var(--body);font-size:15px;font-weight:500;letter-spacing:-.005em;}
+  .wordmark .x{color:var(--faint);margin:0 .3em;font-weight:400;}
+  .wordmark .dc{color:var(--muted);}
+  .toggle{flex:none;display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 7px 6px 12px;cursor:pointer;color:var(--muted);font-family:var(--body);font-size:12px;}
+  .toggle:hover{color:var(--ink);border-color:var(--faint);}
+  .toggle .knob{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--tone-weak);color:var(--ink);}
+  .toggle svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+  :focus-visible{outline:1.5px solid var(--tone);outline-offset:2px;border-radius:4px;}
+
+  .hero{padding:clamp(40px,8vw,84px) 0 clamp(26px,4vw,40px);}
+  h1{font-family:var(--display);font-weight:400;font-size:clamp(24px,3.6vw,40px);line-height:1.12;letter-spacing:-.02em;margin:0;text-wrap:balance;}
+  .lead{margin:26px 0 0;max-width:60ch;font-size:clamp(16px,2vw,18px);color:var(--muted);line-height:1.62;}
+  .lead b{color:var(--ink);font-weight:600;}
+
+  .cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:32px;}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--body);font-weight:600;font-size:14px;letter-spacing:-.005em;border-radius:11px;padding:13px 22px;cursor:pointer;text-decoration:none;border:1px solid transparent;}
+  .btn-primary{background:var(--tone);color:var(--tone-fg);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-primary svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .cta .meta{font-size:12.5px;color:var(--faint);font-family:var(--body);}
+
+  section{padding:clamp(32px,5vw,52px) 0;border-top:1px solid var(--line);}
+  .eyebrow{font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:0 0 16px;}
+  h2{font-family:var(--display);font-size:clamp(17px,2vw,21px);font-weight:500;letter-spacing:-.01em;margin:0 0 18px;line-height:1.15;}
+  p{margin:0 0 14px;color:var(--muted);max-width:64ch;font-size:15.5px;line-height:1.66;}
+  p:last-child{margin-bottom:0;}
+  p b{color:var(--ink);font-weight:600;}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:28px;align-items:start;}
+  @media(min-width:760px){.grid{grid-template-columns:1.05fr .95fr;gap:44px;}}
+
+  .steps{list-style:none;margin:0;padding:0;counter-reset:s;display:flex;flex-direction:column;gap:15px;}
+  .steps li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:15px;align-items:baseline;}
+  .steps li::before{content:counter(s);font-family:var(--display);font-size:12px;font-weight:700;color:var(--ink);width:28px;height:28px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;}
+  .steps .t{font-size:15px;color:var(--muted);line-height:1.55;}
+  .steps .t b{color:var(--ink);font-weight:600;}
+
+  .cols{display:grid;grid-template-columns:1fr;gap:24px;}
+  @media(min-width:560px){.cols{grid-template-columns:1fr 1fr;gap:36px;}}
+  .cols h3{font-family:var(--display);font-size:12px;font-weight:700;margin:0 0 14px;color:var(--ink);text-transform:uppercase;letter-spacing:.1em;}
+  .cols ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+  .cols li{font-size:14.5px;color:var(--muted);display:flex;gap:10px;align-items:baseline;line-height:1.5;}
+  .cols li .m{flex:none;width:14px;color:var(--faint);font-weight:700;}
+  .cols.keep li .m{color:var(--ink);}
+
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:12.5px;box-shadow:0 20px 50px rgba(0,0,0,.28);}
+  .p-head{display:flex;align-items:center;gap:8px;padding:11px 13px;border-bottom:1px solid var(--line);}
+  .p-head .mark{font-family:var(--display);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+  .p-head .chip{margin-left:auto;font-size:10px;color:var(--faint);border:1px solid var(--line);border-radius:6px;padding:2px 7px;}
+  .p-tools{display:flex;gap:4px;padding:9px 11px;border-bottom:1px solid var(--line);}
+  .p-tools span{flex:1;aspect-ratio:1;border-radius:8px;display:grid;place-items:center;color:var(--muted);}
+  .p-tools span.on{background:var(--tone-weak);color:var(--ink);border:1px solid var(--line);}
+  .p-tools svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+  .p-sect{padding:11px 13px;border-bottom:1px solid var(--line);}
+  .p-k{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:9px;}
+  .p-note{background:var(--chip);border:1px solid var(--line-2);border-left:2px solid var(--tone);border-radius:7px;padding:8px 10px;color:var(--ink);font-size:12px;line-height:1.45;}
+  .p-note .el{font-size:10px;color:var(--muted);margin-bottom:3px;}
+  .p-chg{display:flex;gap:8px;align-items:baseline;padding:6px 0;color:var(--muted);}
+  .p-chg .d{flex:none;width:6px;height:6px;border-radius:50%;background:var(--tone);margin-top:5px;}
+  .p-chg .el{color:var(--ink);}
+  .p-foot{display:flex;gap:8px;align-items:center;padding:11px 13px;}
+  .p-foot .cp{flex:1;text-align:center;background:var(--tone);color:var(--tone-fg);border-radius:9px;padding:9px;font-family:var(--display);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;}
+
+  code{font-family:ui-monospace,Menlo,monospace;background:var(--surface-2);border:1px solid var(--line-2);border-radius:5px;padding:1px 6px;font-size:.9em;color:var(--ink);}
+  .callout{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:18px;}
+  .callout p{margin:0;font-size:14px;color:var(--muted);}
+  footer{padding:30px 0 8px;border-top:1px solid var(--line);font-size:12.5px;color:var(--faint);line-height:1.7;}
+  footer a{color:var(--muted);}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <span class="kicker">the art director</span>
+      <span class="wordmark">designmode.app<span class="x">×</span><span class="dc">superstories.com</span></span>
+    </div>
+    <button class="toggle" id="toggle" aria-label="Toggle day / night"><span id="tlabel">night</span><span class="knob" id="knob"></span></button>
+  </div>
+
+  <div class="hero">
+    <h1>You point<br>Claude builds</h1>
+    <p class="lead">The Art Director is a stripped-down Design Mode: a browser overlay where you <b>point, move, measure and comment</b> on a live page. Each change goes to Claude Code as a precise instruction and ships as token-correct CSS. You never set a hex value or a type scale.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="art-director.zip" download><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Download the extension</a>
+      <span class="meta">Chrome / Edge / Brave / Arc · unzip and "Load unpacked"</span>
+    </div>
+  </div>
+
+  <section>
+    <p class="eyebrow">The idea</p>
+    <div class="grid">
+      <div>
+        <h2>A director's instrument</h2>
+        <p>A design app hands you hundreds of controls: type, colour, effects, tokens. A creative director does not want controls. They want to point, to judge, and to say in words what should change.</p>
+        <p>So everything that sets a style value is gone. What stays is what moves, spaces, restructures and reviews. <b>The execution goes to Claude Code.</b> You keep the taste and the decision; the fiddling leaves.</p>
+      </div>
+      <div class="panel" role="img" aria-label="The stripped panel">
+        <div class="p-head"><span class="mark">Art Director</span><span class="chip">MCP</span></div>
+        <div class="p-tools">
+          <span class="on"><svg viewBox="0 0 24 24"><path d="M5 3l6 16 2-6 6-2z"/></svg></span>
+          <span><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M9 6l3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3"/></svg></span>
+          <span><svg viewBox="0 0 24 24"><path d="M4 15v5h5M20 9V4h-5M9 4H4v5M15 20h5v-5"/></svg></span>
+          <span><svg viewBox="0 0 24 24"><path d="M3 8l13 13 5-5L8 3zM8 8l2 2M12 8l2 2"/></svg></span>
+          <span><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 01-11.7 7.7L3 21l1.8-6.3A8.5 8.5 0 1121 11.5z"/></svg></span>
+        </div>
+        <div class="p-sect">
+          <div class="p-k">Note on this spot</div>
+          <div class="p-note"><div class="el">@ h2.welcome</div>This line sits too low and runs too wide. More air beneath it.</div>
+        </div>
+        <div class="p-sect">
+          <div class="p-k">Changes · 3</div>
+          <div class="p-chg"><span class="d"></span><div><span class="el">h2.welcome</span> · top 0 → −64px</div></div>
+          <div class="p-chg"><span class="d"></span><div><span class="el">section.mission</span> · moved +21, +1px</div></div>
+        </div>
+        <div class="p-foot"><span class="cp">Copy Prompt</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">How it works</p>
+    <ol class="steps">
+      <li><span class="t"><b>Open the panel</b> on a live page: localhost, staging or production.</span></li>
+      <li><span class="t"><b>Point.</b> Drag to move, use the handles to resize, measure the distance between two things.</span></li>
+      <li><span class="t"><b>Say it in words</b> where a value is not the point: pin a comment on that exact element.</span></li>
+      <li><span class="t"><b>Show motion</b> when you want an interaction across: hover, appear, scroll.</span></li>
+      <li><span class="t"><b>Copy Prompt.</b> Everything collects in the Changes log and goes to Claude Code as a precise diff.</span></li>
+      <li><span class="t"><b>Claude builds it</b> in token-correct CSS, in the real codebase.</span></li>
+    </ol>
+  </section>
+
+  <section>
+    <p class="eyebrow">The discipline</p>
+    <h2>What stays, what goes</h2>
+    <div class="cols">
+      <div class="cols keep"><h3>Stays</h3><ul>
+        <li><span class="m">→</span>Point, move, resize, measure</li>
+        <li><span class="m">→</span>Spacing and reordering sections</li>
+        <li><span class="m">→</span>Comments on an element</li>
+        <li><span class="m">→</span>Quick text rewrites</li>
+        <li><span class="m">→</span>Motion interactions</li>
+        <li><span class="m">→</span>Changes log, Copy Prompt, MCP handoff</li>
+      </ul></div>
+      <div class="cols"><h3>Goes</h3><ul>
+        <li><span class="m">×</span>Type, colour and fill controls</li>
+        <li><span class="m">×</span>Border, corner, effects, transform</li>
+        <li><span class="m">×</span>The tokens panel and loose CSS fields</li>
+        <li><span class="m">×</span>Motion longhand and the export formats</li>
+      </ul></div>
+    </div>
+    <div class="callout"><p>Token awareness still runs under the hood, so the diff to Claude stays token-correct. You just no longer set it by hand.</p></div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Install</p>
+    <h2>In two minutes</h2>
+    <ol class="steps">
+      <li><span class="t"><b>Download</b> the extension above and unzip it.</span></li>
+      <li><span class="t">In Chrome, open <code>chrome://extensions</code> and turn on <b>Developer mode</b> (top right).</span></li>
+      <li><span class="t">Click <b>Load unpacked</b> and choose the unzipped folder.</span></li>
+      <li><span class="t">Pin the icon, open a page, click <b>Art Director</b>. The side panel opens.</span></li>
+    </ol>
+    <div class="callout"><p>The automatic handoff to your agent runs over a small local MCP server. Without it, "Copy Prompt" still works: you paste the diff into your agent.</p></div>
+  </section>
+
+  <footer>
+    <p>The Art Director is a fork of <a href="https://github.com/SandeepBaskaran/design-mode">Design Mode</a> by Sandeep Baskaran, stripped to a creative-director instrument by SuperStories. Under the original MIT licence.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement,btn=document.getElementById("toggle"),lbl=document.getElementById("tlabel"),knob=document.getElementById("knob");
+  var SUN='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg>';
+  var MOON='<svg viewBox="0 0 24 24"><path d="M21 12.8A8.5 8.5 0 1111.2 3a6.6 6.6 0 009.8 9.8z"/></svg>';
+  function apply(m){if(m==="light"){root.setAttribute("data-theme","light");lbl.textContent="day";knob.innerHTML=SUN;}else{root.setAttribute("data-theme","dark");lbl.textContent="night";knob.innerHTML=MOON;}}
+  var saved="dark";try{saved=localStorage.getItem("ad-theme")||"dark";}catch(e){}
+  apply(saved);
+  btn.addEventListener("click",function(){var n=root.getAttribute("data-theme")==="light"?"dark":"light";apply(n);try{localStorage.setItem("ad-theme",n);}catch(e){}});
+})();
+</script>
+</body>
+</html>

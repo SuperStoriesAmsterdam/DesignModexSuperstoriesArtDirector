@@ -54,6 +54,7 @@ coverage/
 # ── npm pack / publish artefacts ─────────────────────────────────────────
 *.tgz
 *.zip
+!docs/art-director.zip
 .npm-pack/
 *.gem
 

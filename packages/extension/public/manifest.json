@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Design Mode",
+  "name": "Art Director",
   "version": "2.2.1",
-  "description": "Visual DOM editor for browsers — edit styles, add comments, and send changes to coding agents via MCP",
+  "description": "Point, move, measure and comment on a live page, then hand it to Claude Code via MCP. designmode.app x superstories.com",
   "permissions": [
     "activeTab",
     "storage",
@@ -33,7 +33,7 @@
   },
   "sidebar_action": {
     "default_panel": "sidepanel/index.html",
-    "default_title": "Design Mode",
+    "default_title": "Art Director",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -41,7 +41,7 @@
     }
   },
   "action": {
-    "default_title": "Design Mode",
+    "default_title": "Art Director",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -74,14 +74,14 @@
         "default": "Alt+D",
         "mac": "Alt+D"
       },
-      "description": "Toggle Design Mode"
+      "description": "Toggle Art Director"
     },
     "capture-screenshot": {
       "suggested_key": {
         "default": "Alt+S",
         "mac": "Alt+S"
       },
-      "description": "Capture with Design Mode"
+      "description": "Capture with Art Director"
     }
   }
 }

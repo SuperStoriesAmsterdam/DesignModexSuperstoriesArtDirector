@@ -1836,7 +1836,7 @@ async function clearAllChanges() { await send({ type: 'SP_CLEAR_CHANGES' }); sty
 function renderCommentMarkdown(s: string): string {
   let h = escapeAttr(s);
   // Inline code first so its delimiters can't be eaten by bold / italic.
-  h = h.replace(/`([^`]+)`/g, '<code style="font-family:SF Mono,Monaco,monospace;background:rgba(0,0,0,0.06);padding:1px 4px;border-radius:3px;font-size:0.9em;">$1</code>');
+  h = h.replace(/`([^`]+)`/g, '<code style="font-family:inherit;background:rgba(0,0,0,0.06);padding:1px 4px;border-radius:3px;font-size:0.9em;">$1</code>');
   // Bold then italic. The italic regex skips over the `**` markers we
   // just inserted by requiring a non-`*` before the opening `*`.
   h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
@@ -2541,6 +2541,7 @@ function tokenGroupForProp(prop: string): TokenGroup {
 // (narrow numeric fields) shows the token diamond only; full mode shows
 // the shortened var name. Click opens the badge menu.
 function renderTokenBadge(prop: string, compact = true): string {
+  return ''; // Art Director fork: inline token (◆) UI removed; token-engine stays for inspect/changes/Copy Prompt.
   const tok = tokenForProp(prop);
   if (!tok) return '';
   const short = tok.cssVar.replace(/^--(cds|mdc|md|mui|bs|p|radix)-/, '').replace(/^--/, '');
@@ -2563,8 +2564,8 @@ function renderTokenPicker(prop: string): string {
         // Name over value, each on its own line so a long token name and a
         // long value (e.g. calc(…)) both stay readable; full text on hover.
         return '<button data-dm-pick-token="' + escapeAttr('var(' + t.cssVar + ')') + '" data-dm-pick-prop="' + escapeAttr(prop) + '" title="' + escapeAttr(t.cssVar + ' = ' + display) + '" style="width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:6px 10px;background:' + (isCurrent ? 'var(--dm-accent-bg)' : 'transparent') + ';border:none;cursor:pointer;text-align:left;font-family:inherit;color:var(--dm-text);">' +
-          '<span style="max-width:100%;font-size:10px;font-family:SF Mono,Monaco,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(t.cssVar) + '</span>' +
-          '<span style="max-width:100%;font-size:9px;color:var(--dm-text-dim);font-family:SF Mono,Monaco,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(display) + '</span>' +
+          '<span style="max-width:100%;font-size:10px;font-family:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(t.cssVar) + '</span>' +
+          '<span style="max-width:100%;font-size:9px;color:var(--dm-text-dim);font-family:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(display) + '</span>' +
           '</button>';
       }).join('')
     : '<div style="padding:12px;font-size:10px;color:var(--dm-text-dim);text-align:center;">No ' + group + ' tokens on this page.</div>';
@@ -2576,6 +2577,7 @@ function renderTokenPicker(prop: string): string {
 // Badge menu + swap picker, absolutely positioned inside the field.
 // Rendered by every field that renders a badge.
 function renderTokenOverlays(prop: string): string {
+  return ''; // Art Director fork: inline token (◆) UI removed.
   const tok = tokenForProp(prop);
   if (!tok) return '';
   if (tokenPickerProp === prop) return renderTokenPicker(prop);
@@ -2585,10 +2587,10 @@ function renderTokenOverlays(prop: string): string {
   // The scope line matters: it's where an edit to this token has to land
   // for this element to change.
   const scopeLine = tok.scope !== ':root'
-    ? '<div style="padding:0 10px 6px;font-size:9px;color:var(--dm-text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">via <span style="font-family:SF Mono,Monaco,monospace;">' + escapeAttr(tok.scope) + '</span></div>'
+    ? '<div style="padding:0 10px 6px;font-size:9px;color:var(--dm-text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">via <span style="font-family:inherit;">' + escapeAttr(tok.scope) + '</span></div>'
     : '';
   return '<div data-dm-token-menu="' + escapeAttr(prop) + '" data-dm-token-popover="right" style="position:fixed;z-index:60;visibility:hidden;background:var(--dm-bg);border:1px solid var(--dm-separator-strong);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,0.18);padding:4px 0;min-width:180px;">' +
-    '<div style="padding:5px 10px 3px;font-size:9px;color:var(--dm-text-dim);font-family:SF Mono,Monaco,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">var(' + escapeAttr(tok.cssVar) + ')</div>' +
+    '<div style="padding:5px 10px 3px;font-size:9px;color:var(--dm-text-dim);font-family:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">var(' + escapeAttr(tok.cssVar) + ')</div>' +
     scopeLine +
     '<div style="border-bottom:1px solid var(--dm-separator);margin-bottom:3px;"></div>' +
     item('swap', 'Swap token…') +
@@ -2609,7 +2611,7 @@ function renderShadowVarChip(prop: string, menuKey: string, label: string, data:
   const menu = open
     ? '<div data-dm-token-popover="right" style="position:fixed;z-index:60;visibility:hidden;background:var(--dm-bg);border:1px solid var(--dm-separator-strong);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,0.18);padding:4px 0;min-width:200px;max-width:260px;">' +
       '<div style="padding:5px 10px 3px;font-size:9px;color:var(--dm-text-dim);text-transform:uppercase;letter-spacing:0.4px;">Composed from</div>' +
-      data.vars.map(v => '<button data-dm-shadow-edit-var="' + escapeAttr(v) + '" data-dm-shadow-scope="' + escapeAttr(data.scope) + '" title="Edit ' + escapeAttr(v) + ' globally" style="width:100%;display:block;padding:5px 10px;background:transparent;border:none;cursor:pointer;text-align:left;font-family:SF Mono,Monaco,monospace;font-size:10px;color:var(--dm-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(v) + '</button>').join('') +
+      data.vars.map(v => '<button data-dm-shadow-edit-var="' + escapeAttr(v) + '" data-dm-shadow-scope="' + escapeAttr(data.scope) + '" title="Edit ' + escapeAttr(v) + ' globally" style="width:100%;display:block;padding:5px 10px;background:transparent;border:none;cursor:pointer;text-align:left;font-family:inherit;font-size:10px;color:var(--dm-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(v) + '</button>').join('') +
       '<div style="border-top:1px solid var(--dm-separator);margin:3px 0;"></div>' +
       '<button data-dm-shadow-detach="' + escapeAttr(prop) + '" style="width:100%;display:block;padding:6px 10px;background:transparent;border:none;cursor:pointer;text-align:left;font-family:inherit;font-size:11px;color:var(--dm-text);">Detach from tokens</button>' +
       '</div>'
@@ -3090,7 +3092,7 @@ function renderInlineColorPicker(prop: string, value: string, compact = false): 
       '<span style="width:28px;height:28px;border-radius:5px;flex-shrink:0;background:' + safeCssColor(swatchBg) + ';border:1px solid var(--dm-separator);"></span>' +
       '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;">' +
         '<label style="font-size:9px;color:var(--dm-text-dim);text-transform:uppercase;letter-spacing:0.4px;">Hex</label>' +
-        '<input type="text" class="dm-input" data-dm-color-hex="' + escapeAttr(prop) + '" value="' + escapeAttr(hex.slice(1)) + '" style="padding:5px 6px;font-size:10px;font-family:SF Mono,Monaco,monospace;text-transform:uppercase;"/>' +
+        '<input type="text" class="dm-input" data-dm-color-hex="' + escapeAttr(prop) + '" value="' + escapeAttr(hex.slice(1)) + '" style="padding:5px 6px;font-size:10px;font-family:inherit;text-transform:uppercase;"/>' +
       '</div>' +
       (IS_FIREFOX ? '' :
         '<button data-dm-eyedropper="' + escapeAttr(prop) + '" title="Eyedropper — pick a colour from anywhere on screen" style="display:flex;align-items:center;padding:6px;background:var(--dm-btn-bg);border:1px solid var(--dm-btn-border);border-radius:4px;color:var(--dm-text-secondary);cursor:pointer;">' +
@@ -3201,8 +3203,8 @@ function renderColorPanel(prop: string, value: string, compact = false): string 
           const isCurrent = tokenVal === value || tokenHex === hex || ('var(' + t.cssVar + ')') === value;
           return '<button data-dm-pick-color="' + escapeAttr('var(' + t.cssVar + ')') + '" data-dm-pick-prop="' + escapeAttr(prop) + '" style="width:100%;display:flex;align-items:center;gap:8px;padding:5px 8px;background:' + (isCurrent ? 'var(--dm-accent-bg)' : 'transparent') + ';border:none;border-radius:0;cursor:pointer;text-align:left;font-family:inherit;color:var(--dm-text);">' +
             '<span style="width:14px;height:14px;border-radius:3px;background:' + safeCssColor(tokenVal) + ';border:1px solid var(--dm-separator);flex-shrink:0;"></span>' +
-            '<span style="flex:1;font-size:10px;font-family:SF Mono,Monaco,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(t.cssVar) + '</span>' +
-            '<span style="font-size:9px;color:var(--dm-text-dim);font-family:SF Mono,Monaco,monospace;flex-shrink:0;max-width:90px;overflow:hidden;text-overflow:ellipsis;">' + escapeAttr(tokenDisplay) + '</span>' +
+            '<span style="flex:1;font-size:10px;font-family:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(t.cssVar) + '</span>' +
+            '<span style="font-size:9px;color:var(--dm-text-dim);font-family:inherit;flex-shrink:0;max-width:90px;overflow:hidden;text-overflow:ellipsis;">' + escapeAttr(tokenDisplay) + '</span>' +
             '</button>';
         }).join('')
       : '<div style="padding:14px;font-size:10px;color:var(--dm-text-dim);text-align:center;">' + (q ? 'No matching colors. Press Enter to use "' + escapeAttr(q) + '" as custom value.' : 'No design tokens on this page.') + '</div>') +
@@ -3226,8 +3228,8 @@ function renderTokensDropdown(prop: string, value: string): string {
       const tokenDisplay = formatTokenForDisplay(tokenVal);
       return '<button data-dm-pick-color="' + escapeAttr('var(' + t.cssVar + ')') + '" data-dm-pick-prop="' + escapeAttr(prop) + '" title="' + escapeAttr(t.cssVar + ' = ' + tokenDisplay) + '" style="width:100%;display:flex;align-items:center;gap:8px;padding:5px 8px;background:' + (isCurrent ? 'var(--dm-accent-bg)' : 'transparent') + ';border:none;cursor:pointer;text-align:left;font-family:inherit;color:var(--dm-text);">' +
         '<span style="width:14px;height:14px;border-radius:3px;background:' + escapeAttr(tokenVal) + ';border:1px solid var(--dm-separator);flex-shrink:0;"></span>' +
-        '<span style="flex:1;min-width:0;font-size:10px;font-family:SF Mono,Monaco,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(t.cssVar) + '</span>' +
-        '<span style="font-size:9px;color:var(--dm-text-dim);font-family:SF Mono,Monaco,monospace;flex-shrink:0;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(tokenDisplay) + '</span>' +
+        '<span style="flex:1;min-width:0;font-size:10px;font-family:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(t.cssVar) + '</span>' +
+        '<span style="font-size:9px;color:var(--dm-text-dim);font-family:inherit;flex-shrink:0;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(tokenDisplay) + '</span>' +
         '</button>';
     }).join('') +
     '</div>';
@@ -3645,7 +3647,7 @@ function cornerRadius2x2(s: Record<string, string>): string {
     const [xRaw] = parseRadiusXY(c.val);
     const formatted = formatPxValueForDisplay(xRaw);
     return '<div style="position:relative;display:flex;align-items:center;gap:4px;min-width:0;background:var(--dm-input-bg);border:1px solid var(--dm-input-border);border-radius:5px;padding:4px 6px;">' +
-      '<span style="font-family:SF Mono,Monaco,monospace;font-size:11px;color:var(--dm-text-muted);width:14px;flex-shrink:0;text-align:center;">' + c.glyph + '</span>' +
+      '<span style="font-family:inherit;font-size:11px;color:var(--dm-text-muted);width:14px;flex-shrink:0;text-align:center;">' + c.glyph + '</span>' +
       '<input class="dm-input" data-dm-prop="' + c.prop + '" data-dm-numeric="1" data-dm-unit="' + escapeAttr(formatted.writeUnit) + '" inputmode="decimal" value="' + escapeAttr(formatted.display) + '" placeholder="0" title="' + c.label + '" aria-label="' + c.label + '" style="background:none;border:none;padding:2px;flex:1;min-width:0;font-size:11px;"/>' +
       renderTokenBadge(c.prop) +
       '<span style="font-size:9px;color:var(--dm-text-dim);flex-shrink:0;">' + formatted.unit + '</span>' +
@@ -4607,7 +4609,7 @@ function layeredRow(opts: {
   const headRow = '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--dm-bg-secondary);border:1px solid var(--dm-separator);border-radius:5px;">' +
     '<span class="dm-section-action" data-dm-' + opts.prefix + '-drag="' + opts.idx + '" title="Drag to reorder" aria-label="Drag" style="cursor:grab;">' + icon('gripVertical', 12) + '</span>' +
     opts.swatch +
-    '<span style="flex:1;min-width:0;font-size:11px;font-family:SF Mono,Monaco,monospace;color:var(--dm-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(opts.label) + '</span>' +
+    '<span style="flex:1;min-width:0;font-size:11px;font-family:inherit;color:var(--dm-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(opts.label) + '</span>' +
     metaPart +
     '<button class="dm-section-action" data-dm-' + opts.prefix + '-toggle="' + opts.idx + '" title="' + (opts.visible ? 'Hide' : 'Show') + '" data-active="' + (opts.visible ? 'true' : 'false') + '">' + icon(opts.visible ? 'eye' : 'eyeOff', 12) + '</button>' +
     expandBtn +
@@ -5314,7 +5316,7 @@ function renderAnimationEditor(s: Record<string, string>): string {
   const isBuiltin = name.startsWith('dm-');
   const knownName = isBuiltin || name === 'none' ? name : '';
   const customLabel = isBuiltin || name === 'none' ? '' :
-    '<div style="margin-top:4px;font-size:9px;color:var(--dm-text-dim);">Custom: <span style="font-family:monospace;color:var(--dm-text-muted);">' + escapeAttr(name) + '</span> (page must define @keyframes)</div>';
+    '<div style="margin-top:4px;font-size:9px;color:var(--dm-text-dim);">Custom: <span style="font-family:inherit;color:var(--dm-text-muted);">' + escapeAttr(name) + '</span> (page must define @keyframes)</div>';
   const iterInput =
     '<div class="dm-field">' +
     '<label class="dm-field-label">Iterations</label>' +
@@ -5546,7 +5548,7 @@ function renderVizPanel(): string {
     '<div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;">' +
     '<span style="width:22px;font-size:9px;color:var(--dm-text-muted);flex-shrink:0;">' + lbl + '</span>' +
     '<input type="range" data-dm-viz-param="' + param + '" min="' + mn + '" max="' + mx + '" step="' + st + '" value="' + val + '" style="flex:1;accent-color:var(--dm-accent);height:3px;"/>' +
-    '<span style="width:28px;text-align:right;font-size:9px;color:var(--dm-text-dim);font-family:monospace;">' + val.toFixed(2) + '</span>' +
+    '<span style="width:28px;text-align:right;font-size:9px;color:var(--dm-text-dim);font-family:inherit;">' + val.toFixed(2) + '</span>' +
     '</div>';
   const polyline = isEase
     ? bptsToPolyline(sampleBezier(bezX1, bezY1, bezX2, bezY2), 74, 36)
@@ -6125,7 +6127,7 @@ function renderComputedCssOverlay(): string {
     '<span style="font-size:12px;font-weight:600;color:var(--dm-text);">Computed CSS</span>' +
     '<button data-dm-action="copy-computed-css" style="margin-left:auto;padding:4px 8px;background:var(--dm-btn-bg);border:1px solid var(--dm-btn-border);border-radius:5px;color:var(--dm-text-secondary);cursor:pointer;font-size:10px;font-family:inherit;display:flex;align-items:center;gap:4px;">' + icon('copy',10) + ' Copy</button>' +
     '</div>' +
-    '<pre style="flex:1;overflow:auto;margin:0;padding:12px;font-family:SF Mono,Monaco,monospace;font-size:10px;line-height:1.6;color:var(--dm-text);white-space:pre-wrap;word-break:break-all;">' + escapeAttr(computedCssText) + '</pre>' +
+    '<pre style="flex:1;overflow:auto;margin:0;padding:12px;font-family:inherit;font-size:10px;line-height:1.6;color:var(--dm-text);white-space:pre-wrap;word-break:break-all;">' + escapeAttr(computedCssText) + '</pre>' +
     '</div>';
 }
 
@@ -6226,7 +6228,7 @@ function spacingBox(s: Record<string, string>, displayInfo: any): string {
     '<div style="position:absolute;right:1px;top:50%;transform:translateY(-50%);">' + fld('paddingRight', pR, 'Padding right') + '</div>' +
 
     // Element dimensions display
-    '<div style="background:var(--dm-text);color:var(--dm-bg);border-radius:5px;padding:7px 10px;text-align:center;font-size:10px;font-family:SF Mono,Monaco,monospace;font-weight:500;">' + w + ' × ' + h + '</div>' +
+    '<div style="background:var(--dm-text);color:var(--dm-bg);border-radius:5px;padding:7px 10px;text-align:center;font-size:10px;font-family:inherit;font-weight:500;">' + w + ' × ' + h + '</div>' +
     '</div></div>';
 }
 
@@ -6281,10 +6283,13 @@ function renderMcpStatus(): string {
 }
 
 function renderHeader(): string {
-  const domain = pinnedDomain ? '<span style="font-size:11px;color:var(--dm-text-secondary);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(pinnedDomain) + '</span>' : '';
+  const domain = pinnedDomain ? '<span style="font-size:11px;color:var(--dm-text-dim);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeAttr(pinnedDomain) + '</span>' : '';
+  // Art Director fork: monochrome wordmark (pointer glyph + name) leading the header.
+  const brand = '<span style="display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--dm-text);white-space:nowrap;"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="display:block;flex-shrink:0;"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51z"/></svg>Art Director</span>';
+  const brandSep = pinnedDomain ? '<span style="color:var(--dm-separator-strong);font-size:12px;">/</span>' : '';
   const themeIcon = resolvedTheme === 'dark' ? 'sun' : 'moon';
   return '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--dm-separator-strong);flex-shrink:0;background:var(--dm-bg);position:sticky;top:0;z-index:10;">' +
-    domain + '<div style="flex:1;"></div>' + renderMcpStatus() +
+    brand + brandSep + domain + '<div style="flex:1;"></div>' + renderMcpStatus() +
     '<button data-dm-action="toggle-theme" title="Toggle theme" style="background:none;border:none;color:var(--dm-text-secondary);cursor:pointer;display:flex;padding:4px;">' + icon(themeIcon as keyof typeof icons, 15) + '</button>' +
     '<button data-dm-action="contribute" title="Contribute" aria-label="Open contribute panel" style="background:none;border:none;color:var(--dm-text-secondary);cursor:pointer;display:flex;padding:4px;">' + icon('heartHandshake', 15) + '</button>' +
     '<button data-dm-action="help" title="Help" aria-label="Open help" style="background:none;border:none;color:var(--dm-text-secondary);cursor:pointer;display:flex;padding:4px;">' + icon('helpCircle', 15) + '</button>' +
@@ -6324,8 +6329,7 @@ function renderActionRow(): string {
     '<button data-dm-action="comment" title="Comment" style="' + bs() + '">' + icon('messageSquare', 14) + '</button>' +
     '<button data-dm-action="region-comment" title="Annotate" style="' + bs(undefined, true) + ';' + (awaitingRegionDraw ? 'color:var(--dm-accent);background:var(--dm-accent-bg);border-color:var(--dm-accent-border);' : '') + '">' + icon('squareDashed', 14) + '</button>' +
     '<button data-dm-action="screenshot" title="Screenshot" style="' + bs(undefined, true) + '">' + icon('camera', 14) + '</button>' +
-    '<div style="width:1px;height:16px;background:var(--dm-separator-strong);margin:0 2px;"></div>' +
-    '<button data-dm-action="open-tokens" title="Design system" style="' + bs(undefined, true) + ';' + (tokensOpen ? 'color:var(--dm-accent);background:var(--dm-accent-bg);border-color:var(--dm-accent-border);' : '') + '">' + icon('swatchBook', 14) + '</button>' +
+    /* Art Director fork: tokens panel button removed (token-engine stays for inspect/changes/Copy Prompt) */
     '<div style="flex:1;"></div>' +
     '<button data-dm-action="undo" title="Undo (Ctrl+Z)" style="' + bs(undefined, true) + '">' + icon('undo', 14) + '</button>' +
     '<button data-dm-action="redo" title="Redo (Ctrl+Shift+Z)" style="' + bs(undefined, true) + ';transform:scaleX(-1);">' + icon('undo', 14) + '</button></div>';
@@ -6352,7 +6356,7 @@ function renderCommentCard(): string {
     '<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">' +
     '<span style="color:var(--dm-purple);display:flex;">' + icon('messageSquare', 14) + '</span>' +
     '<span style="font-size:11px;font-weight:600;color:var(--dm-text);">' + (isEditing ? 'Edit Comment' : 'Add Comment') + '</span>' +
-    '<span style="font-size:9px;color:var(--dm-text-dim);font-family:SF Mono,monospace;">' + tagLabel + '</span></div>' +
+    '<span style="font-size:9px;color:var(--dm-text-dim);font-family:inherit;">' + tagLabel + '</span></div>' +
     annotationAlert +
     '<textarea data-dm-comment-input style="width:100%;min-height:60px;background:var(--dm-input-bg);border:1px solid var(--dm-input-border);border-radius:6px;color:var(--dm-text);font-size:11px;padding:8px;outline:none;resize:vertical;font-family:inherit;box-sizing:border-box;">' + escapeAttr(commentText) + '</textarea>' +
     '<div style="display:flex;gap:6px;margin-top:8px;justify-content:flex-end;">' +
@@ -6405,7 +6409,7 @@ function renderStickyBottom(): string {
 function renderSendAgentHelpOverlay(): string {
   if (!sendAgentHelpOpen) return '';
   const isCloud = mcpMode === 'cloud' || mcpMode === 'self-hosted';
-  const code = (t: string) => '<code style="font-family:SF Mono,Monaco,monospace;font-size:9px;background:var(--dm-bg-secondary);border:1px solid var(--dm-separator);border-radius:3px;padding:1px 4px;word-break:break-all;">' + t + '</code>';
+  const code = (t: string) => '<code style="font-family:inherit;font-size:9px;background:var(--dm-bg-secondary);border:1px solid var(--dm-separator);border-radius:3px;padding:1px 4px;word-break:break-all;">' + t + '</code>';
   let intro: string;
   let steps: string[];
   if (mcpState === 'running') {
@@ -6463,7 +6467,7 @@ function renderSealedFrameNotice(): string {
   return '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;color:var(--dm-text-dim);text-align:center;padding:40px;gap:12px;">' +
     '<div style="color:var(--dm-text-dimmer);">' + icon('squareDashed', 32) + '</div>' +
     '<div style="font-size:12px;font-weight:600;color:var(--dm-text-muted);">This page wraps a sandboxed HTML artifact</div>' +
-    '<div style="font-size:11px;line-height:1.55;color:var(--dm-text-dim);max-width:280px;">The visible content lives inside an <code style="font-family:SF Mono,monospace;font-size:10px;">&lt;iframe sandbox&gt;</code> with its own locked-down origin. The browser walls that off from every extension, so Design Mode can’t inspect or edit the <b>wrapped</b> content — this isn’t a bug.</div>' +
+    '<div style="font-size:11px;line-height:1.55;color:var(--dm-text-dim);max-width:280px;">The visible content lives inside an <code style="font-family:inherit;font-size:10px;">&lt;iframe sandbox&gt;</code> with its own locked-down origin. The browser walls that off from every extension, so Design Mode can’t inspect or edit the <b>wrapped</b> content — this isn’t a bug.</div>' +
     '<div style="font-size:11px;line-height:1.55;color:var(--dm-text-dim);max-width:280px;">You can still inspect and edit the <b>wrapper</b> HTML (the outer document). To reach the inner content, open the artifact’s own HTML file directly.</div>' +
     '<button data-dm-action="inspect-wrapper" style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--dm-btn-bg);border:1px solid var(--dm-btn-border);border-radius:6px;color:var(--dm-text-secondary);cursor:pointer;font-size:11px;font-weight:600;font-family:inherit;">' + icon('code', 13) + ' Inspect wrapper HTML</button>' +
     '</div>';
@@ -6609,7 +6613,7 @@ function renderLayersTab(): string {
     // layer has at least one comment.
     const commentCount = comments.filter(cc => cc.elementId === n.id).length;
     const commentChip = commentCount > 0
-      ? '<span title="' + commentCount + ' comment' + (commentCount === 1 ? '' : 's') + ' on this layer" style="display:inline-flex;align-items:center;gap:2px;padding:1px 5px;border-radius:9999px;background:rgba(251,191,36,0.18);color:#92400e;font-size:9px;font-weight:600;flex-shrink:0;font-family:SF Mono,Monaco,monospace;">' + icon('messageSquare', 8) + ' ' + commentCount + '</span>'
+      ? '<span title="' + commentCount + ' comment' + (commentCount === 1 ? '' : 's') + ' on this layer" style="display:inline-flex;align-items:center;gap:2px;padding:1px 5px;border-radius:9999px;background:rgba(251,191,36,0.18);color:#92400e;font-size:9px;font-weight:600;flex-shrink:0;font-family:inherit;">' + icon('messageSquare', 8) + ' ' + commentCount + '</span>'
       : '';
     // Container-kind badge — surfaces shadow / iframe / pseudo subtrees.
     const containerBadge = n.containerKind === 'shadow'
@@ -6621,7 +6625,7 @@ function renderLayersTab(): string {
           : '';
     // Z-index chip — surfaces non-default stacking contexts.
     const zChip = n.zIndex
-      ? '<span title="z-index: ' + escapeAttr(n.zIndex) + '" style="font-size:8px;padding:1px 5px;border-radius:9999px;background:rgba(0,0,0,0.06);color:var(--dm-text-dim);font-weight:600;flex-shrink:0;font-family:SF Mono,Monaco,monospace;">z:' + escapeAttr(n.zIndex) + '</span>'
+      ? '<span title="z-index: ' + escapeAttr(n.zIndex) + '" style="font-size:8px;padding:1px 5px;border-radius:9999px;background:rgba(0,0,0,0.06);color:var(--dm-text-dim);font-weight:600;flex-shrink:0;font-family:inherit;">z:' + escapeAttr(n.zIndex) + '</span>'
       : '';
     // Color swatch — when the layer has a non-transparent background colour.
     const colorSwatch = n.backgroundColor
@@ -6631,13 +6635,13 @@ function renderLayersTab(): string {
     // component, the row reads "ComponentName" with the html tag fading
     // out as a smaller pill on the right.
     const tagSubtitle = n.componentName
-      ? '<span style="font-size:9px;color:var(--dm-text-dim);font-family:SF Mono,Monaco,monospace;flex-shrink:0;opacity:0.7;">' + escapeAttr('<' + n.tagName + '>') + '</span>'
+      ? '<span style="font-size:9px;color:var(--dm-text-dim);font-family:inherit;flex-shrink:0;opacity:0.7;">' + escapeAttr('<' + n.tagName + '>') + '</span>'
       : '';
 
     // max-width guards against a single pathological class/id name
     // blowing up the max-content row width; the row title carries the
     // full name for that case.
-    const nameCell = '<span style="font-size:11px;color:' + tagColor + ';font-family:SF Mono,Monaco,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;max-width:360px;">' + escapeAttr(displayName) + '</span>';
+    const nameCell = '<span style="font-size:11px;color:' + tagColor + ';font-family:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;max-width:360px;">' + escapeAttr(displayName) + '</span>';
 
     return '<div class="dm-layer-item" data-dm-layer="' + n.id + '" draggable="true" data-dm-layer-drag="' + n.id + '" style="display:flex;align-items:center;gap:3px;padding:3px 6px 3px ' + (4 + indent) + 'px;background:' + bg + ';cursor:pointer;border-left:2px solid ' + borderColor + ';position:relative;min-height:30px;opacity:' + (!n.isVisible || dimmedByAncestor.has(n.id) ? '0.4' : '1') + ';" title="' + escapeAttr(displayName) + '">' +
       guides + dragHandle + chevron + tagIcon + colorSwatch + multiBadge + containerBadge + changeDot + commentChip +
@@ -6687,6 +6691,14 @@ interface SectionVisibility {
   layoutGuide: boolean;
 }
 function visibleSections(kind: LayerKind): SectionVisibility {
+  // Art Director fork: keep move / space / structure / motion; drop the styling
+  // sections (layout, appearance, fill, stroke, effects, layout-guide). Typography
+  // is handled separately so the inline text editor survives. This mask is the
+  // single, reversible switch over the original per-kind logic below.
+  const v = rawVisibleSections(kind);
+  return { ...v, layout: false, appearance: false, fill: false, stroke: false, effects: false, layoutGuide: false };
+}
+function rawVisibleSections(kind: LayerKind): SectionVisibility {
   // Mirrors Figma: each kind exposes only the sections that make sense.
   // Layout Guide is shown on anything that has a box you'd lay things
   // inside — containers, pages, and the permissive `unknown` default.
@@ -6783,7 +6795,7 @@ function renderDesignTab(): string {
   const indicator =
     '<div style="padding:6px 12px;border-bottom:1px solid var(--dm-separator);display:flex;align-items:center;gap:6px;">' +
     indicatorLeft +
-    '<span style="font-size:10px;color:var(--dm-text-dim);font-family:SF Mono,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;">&lt;' + escapeAttr(tag) + '&gt;</span>' +
+    '<span style="font-size:10px;color:var(--dm-text-dim);font-family:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;">&lt;' + escapeAttr(tag) + '&gt;</span>' +
     multiBadge + matchingCtl + cssBtn + '</div>';
   const pageStateItems: Array<{ state: ':hover' | ':focus' | ':focus-visible' | ':active'; label: string }> = [
     { state: ':hover', label: 'Hover' },
@@ -6853,7 +6865,6 @@ function renderDesignTab(): string {
   const textField = showTextEdit
     ? '<div style="display:flex;flex-direction:column;gap:3px;margin-bottom:10px;">' +
       '<label style="font-size:9px;color:var(--dm-text-muted);text-transform:uppercase;letter-spacing:0.4px;">Text Content</label>' +
-      richToolbar +
       '<div data-dm-richtext data-dm-element-id="' + escapeAttr(displayInfo.id || '') + '" contenteditable="true" class="dm-input" style="width:100%;min-height:88px;font-family:inherit;font-size:13px;line-height:1.5;padding:8px;box-sizing:border-box;outline:none;overflow-y:auto;max-height:280px;" spellcheck="false">' + richHtml + '</div>' +
       textWarning +
       '</div>'
@@ -6880,7 +6891,7 @@ function renderDesignTab(): string {
     '</div>' +
     '<div style="display:flex;align-items:center;gap:8px;">' +
     '<span style="font-size:10px;color:var(--dm-text-secondary);">Icon:</span>' +
-    '<span style="font-size:11px;font-family:SF Mono,Monaco,monospace;color:var(--dm-text);">' + escapeAttr(iconInfo.name) + '</span>' +
+    '<span style="font-size:11px;font-family:inherit;color:var(--dm-text);">' + escapeAttr(iconInfo.name) + '</span>' +
     '</div>'
   ) : '';
 
@@ -7023,7 +7034,11 @@ function renderDesignTab(): string {
 
   const typographyActionsHtml = advancedToggleBtn('typography', typographyAdvOpen);
 
-  const typographySection = !vis.typography ? '' : sec('Typography', 'type', textField +
+  // Art Director fork: Typography controls removed; only the inline text editor
+  // survives, as its own slim "Text" section. The original section is kept below
+  // as dead-but-valid code (unused) so the diff stays small and reversible.
+  const typographySection = showTextEdit ? sec('Text', 'type', textField, true) : '';
+  const _typoLegacy = !vis.typography ? '' : sec('Typography', 'type', textField +
     renderFontFamilyPicker(s.fontFamily || '') + sp() +
     grid(2, selKV('Weight', 'fontWeight', fontWeightCur, FONT_WEIGHTS, 'fontWeight'), inp('Size', 'fontSize', s.fontSize || '16px')) + sp() +
     grid(2,
@@ -7414,7 +7429,7 @@ function renderDesignTab(): string {
       (isGrid ? sub('Grid container') +
         inp('Cols', 'gridTemplateColumns', s.gridTemplateColumns || 'none', '') + sp() +
         inp('Rows', 'gridTemplateRows', s.gridTemplateRows || 'none', '') + sp() +
-        '<div class="dm-field"><label class="dm-field-label">Areas</label><textarea class="dm-input" data-dm-prop="gridTemplateAreas" rows="3" placeholder=\'"a a b" "c c b"\' style="background:var(--dm-input-bg);border:1px solid var(--dm-input-border);border-radius:5px;padding:6px;font-family:SF Mono,Monaco,monospace;resize:vertical;">' + escapeAttr((s as any).gridTemplateAreas || '') + '</textarea></div>' + sp() +
+        '<div class="dm-field"><label class="dm-field-label">Areas</label><textarea class="dm-input" data-dm-prop="gridTemplateAreas" rows="3" placeholder=\'"a a b" "c c b"\' style="background:var(--dm-input-bg);border:1px solid var(--dm-input-border);border-radius:5px;padding:6px;font-family:inherit;resize:vertical;">' + escapeAttr((s as any).gridTemplateAreas || '') + '</textarea></div>' + sp() +
         grid(2,
           inp('Auto cols', 'gridAutoColumns', (s as any).gridAutoColumns || 'auto', ''),
           inp('Auto rows', 'gridAutoRows', (s as any).gridAutoRows || 'auto', '')
@@ -7607,7 +7622,7 @@ function renderDesignTab(): string {
             const xv = m ? m[1] : pair;
             const yv = m ? m[2] : '';
             return '<div style="display:grid;grid-template-columns:24px 1fr 1fr 24px;gap:6px;align-items:end;">' +
-              '<div style="font-size:9px;color:var(--dm-text-dim);font-family:SF Mono,Monaco,monospace;padding-bottom:6px;text-align:right;">' + (i + 1) + '</div>' +
+              '<div style="font-size:9px;color:var(--dm-text-dim);font-family:inherit;padding-bottom:6px;text-align:right;">' + (i + 1) + '</div>' +
               inp('X', '__clippath_polygon_x_' + i, xv, '') +
               inp('Y', '__clippath_polygon_y_' + i, yv, '') +
               '<button class="dm-section-action" data-dm-clippath-polygon-remove="' + i + '" title="Remove vertex" style="height:28px;color:var(--dm-danger);">' + icon('trash', 11) + '</button>' +
@@ -8094,7 +8109,7 @@ function renderDesignTab(): string {
       { span: 6, content: inp('Name', 'viewTransitionName', vtName === 'none' ? '' : vtName, '') },
       { span: 6, content: inp('Class', 'viewTransitionClass', vtClass === 'none' ? '' : vtClass, '') },
     ]) + sp() +
-    '<div style="font-size:10px;color:var(--dm-text-dim);font-style:italic;">Active only during <code style="font-family:SF Mono,monospace;">document.startViewTransition()</code> calls. Set a unique <code>name</code> per element you want to animate across DOM swaps.</div>' + sp() +
+    '<div style="font-size:10px;color:var(--dm-text-dim);font-style:italic;">Active only during <code style="font-family:inherit;">document.startViewTransition()</code> calls. Set a unique <code>name</code> per element you want to animate across DOM swaps.</div>' + sp() +
     '<div style="display:flex;justify-content:flex-end;"><button class="dm-btn" data-dm-effect-action="clear-view-transition" title="Clear view-transition properties" style="padding:3px 8px;font-size:9px;">Clear view transition</button></div>'
   );
 
@@ -8142,7 +8157,9 @@ function renderDesignTab(): string {
         '<div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--dm-text-dim);margin-bottom:8px;">Advanced (raw CSS)</div>' +
         motionRawPieces.join(''))
     : '';
-  const motionContent = motionPieces.join('') + motionAdvancedHtml;
+  // Art Director fork: keep the Motion interaction cards; drop the Advanced longhand
+  // (transition / animation / transform / motion-path / view-transition / scroll-driven).
+  const motionContent = motionPieces.join('');
 
   // A whole-value shadow token (`box-shadow: var(--elevation-2)`) can't live
   // on any single decomposed effect row, so it surfaces as a section-level
@@ -8288,7 +8305,7 @@ function renderDesignTab(): string {
     // SP_GET_MEDIA response can come back with kind:"background" because
     // the element has a CSS background-image — that's a Fill, not a Media
     // layer, so don't surface a Media section there.
-    ((kind === 'media' || kind === 'svg') ? renderMediaSection(displayInfo, s, isImg) : '') +
+    /* Art Director fork: image/SVG download (Media section) removed */ '' +
     (!vis.position ? '' : sec('Position', 'move', positionContent, true, advancedToggleBtn('position', !!advancedOpen.position))) +
     (!vis.layout ? '' : sec('Layout', 'layoutGrid', layoutContent, true, layoutActionsHtml)) +
     (!vis.appearance ? '' : sec('Appearance', 'droplet', appearanceContent, true, appearanceActionsHtml)) +
@@ -8652,7 +8669,7 @@ function renderChangesTab(): string {
 
     const header = '<div class="dm-change-group-header" data-dm-change-group="' + escapeAttr(key) + '"' + (isStale ? ' style="opacity:0.7;"' : '') + '>' +
       '<span style="color:var(--dm-text-dim);display:flex;">' + icon(chevIcon as keyof typeof icons, 10) + '</span>' +
-      '<span style="font-family:SF Mono,Monaco,monospace;font-size:10px;color:var(--dm-text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;" title="' + escapeAttr(group.selector) + (isStale ? ' (element no longer reachable)' : '') + '">' + escapeAttr(group.label || group.selector) + '</span>' +
+      '<span style="font-family:inherit;font-size:10px;color:var(--dm-text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;" title="' + escapeAttr(group.selector) + (isStale ? ' (element no longer reachable)' : '') + '">' + escapeAttr(group.label || group.selector) + '</span>' +
       (isStale ? '<span style="font-size:8px;padding:1px 6px;border-radius:9999px;background:rgba(0,0,0,0.06);color:var(--dm-text-dim);font-weight:600;text-transform:uppercase;letter-spacing:0.4px;flex-shrink:0;">stale</span>' : '') +
       '<span style="font-size:9px;background:var(--dm-accent-bg);color:var(--dm-accent);border-radius:8px;padding:1px 6px;flex-shrink:0;">' + count + '</span>' +
       (group.elementId ? '<button data-dm-select-change-el="' + escapeAttr(group.elementId) + '" title="Select element" style="background:none;border:none;color:var(--dm-text-dim);cursor:pointer;display:flex;padding:2px;flex-shrink:0;">' + icon('crosshair', 10) + '</button>' : '') +
@@ -8708,7 +8725,7 @@ function renderChangesTab(): string {
         const c = item.data;
         const cid = c.id;
         const diffHtml = renderWordDiff(c.oldText || '', c.newText || '');
-        const inner = '<div style="font-size:10px;line-height:1.5;font-family:SF Mono,Monaco,monospace;word-break:break-word;"><span style="color:var(--dm-text-muted);">text:</span> ' + diffHtml + '</div>';
+        const inner = '<div style="font-size:10px;line-height:1.5;font-family:inherit;word-break:break-word;"><span style="color:var(--dm-text-muted);">text:</span> ' + diffHtml + '</div>';
         return '<div class="dm-change-item" data-dm-select-change-el="' + escapeAttr(c.elementId || '') + '"' + rowTip + ' style="display:flex;align-items:flex-start;gap:6px;padding:6px 12px 6px 28px;border-bottom:1px solid var(--dm-separator);cursor:pointer;' + ((c as any).status === 'resolved' ? 'opacity:0.6;' : '') + '">' +
           checkbox(cid) +
           '<span style="color:var(--dm-accent);display:flex;flex-shrink:0;margin-top:2px;">' + icon('type', 10) + '</span>' +
@@ -8729,10 +8746,10 @@ function renderChangesTab(): string {
         const fmt = (loc: { parentSelector: string; index: number }) =>
           escapeAttr(loc.parentSelector) + ' › position ' + (loc.index + 1);
         const origLine = c.action === 'move' && c.origin
-          ? '<div style="font-size:9px;color:var(--dm-text-dim);font-family:SF Mono,Monaco,monospace;margin-top:2px;line-height:1.4;"><span style="color:var(--dm-text-muted);">from</span> ' + fmt(c.origin) + '</div>'
+          ? '<div style="font-size:9px;color:var(--dm-text-dim);font-family:inherit;margin-top:2px;line-height:1.4;"><span style="color:var(--dm-text-muted);">from</span> ' + fmt(c.origin) + '</div>'
           : '';
         const destLine = c.action === 'move' && c.destination
-          ? '<div style="font-size:9px;color:var(--dm-text-dim);font-family:SF Mono,Monaco,monospace;margin-top:2px;line-height:1.4;"><span style="color:var(--dm-text-muted);">to</span> ' + fmt(c.destination) + '</div>'
+          ? '<div style="font-size:9px;color:var(--dm-text-dim);font-family:inherit;margin-top:2px;line-height:1.4;"><span style="color:var(--dm-text-muted);">to</span> ' + fmt(c.destination) + '</div>'
           : '';
         return '<div class="dm-change-item" data-dm-select-change-el="' + escapeAttr(c.elementId || '') + '"' + rowTip + ' style="display:flex;align-items:flex-start;gap:6px;padding:6px 12px 6px 28px;border-bottom:1px solid var(--dm-separator);cursor:pointer;' + ((c as any).status === 'resolved' ? 'opacity:0.6;' : '') + '">' +
           checkbox(cid) +
@@ -8753,7 +8770,7 @@ function renderChangesTab(): string {
           (scopeSel !== ':root' ? chip(scopeSel, 'Declared on ' + scopeSel) : '');
         return '<div class="dm-change-item"' + rowTip + ' style="display:flex;align-items:center;gap:6px;padding:6px 12px 6px ' + indentLeft + 'px;border-bottom:1px solid var(--dm-separator);">' +
           '<span style="color:var(--dm-accent);display:flex;flex-shrink:0;">' + icon('swatchBook', 10) + '</span>' +
-          '<div style="flex:1;min-width:0;"><div style="font-size:10px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;"><span style="color:var(--dm-text-muted);font-family:SF Mono,Monaco,monospace;">' + escapeAttr(c.cssVar) + '</span>' + chips + '<span><span style="color:var(--dm-danger);text-decoration:line-through;font-size:9px;">' + shortOld + '</span> → <span style="color:var(--dm-success);">' + shortNew + '</span></span></div></div>' +
+          '<div style="flex:1;min-width:0;"><div style="font-size:10px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;"><span style="color:var(--dm-text-muted);font-family:inherit;">' + escapeAttr(c.cssVar) + '</span>' + chips + '<span><span style="color:var(--dm-danger);text-decoration:line-through;font-size:9px;">' + shortOld + '</span> → <span style="color:var(--dm-success);">' + shortNew + '</span></span></div></div>' +
           '<button class="dm-change-revert" data-dm-token-reset="' + escapeAttr(c.cssVar) + '" data-dm-token-scope="' + escapeAttr(scopeSel) + '" title="Revert token to original" style="background:none;border:none;color:var(--dm-text-muted);cursor:pointer;display:flex;padding:4px;flex-shrink:0;">' + icon('trash', 10) + '</button></div>';
       } else {
         const c = item.data;
@@ -8769,7 +8786,7 @@ function renderChangesTab(): string {
         const wasEdited = !!(c.updatedAt && c.timestamp && c.updatedAt > c.timestamp + 1000);
         const tsLabel = fmtAgo(c.timestamp);
         const editedLabel = wasEdited ? ' · edited ' + fmtAgo(c.updatedAt) : '';
-        const tsInfo = '<span style="font-size:9px;color:var(--dm-text-dim);font-family:SF Mono,Monaco,monospace;flex-shrink:0;">' + escapeAttr(tsLabel + editedLabel) + '</span>';
+        const tsInfo = '<span style="font-size:9px;color:var(--dm-text-dim);font-family:inherit;flex-shrink:0;">' + escapeAttr(tsLabel + editedLabel) + '</span>';
         // Body styling — strikethrough + faded when resolved.
         const bodyStyle = 'font-size:11px;color:' + (isResolved ? 'var(--dm-text-dim)' : 'var(--dm-text)') + ';line-height:1.5;' + (isResolved ? 'text-decoration:line-through;' : '');
         const bodyStyleCompact = 'font-size:10px;color:' + (isResolved ? 'var(--dm-text-dim)' : 'var(--dm-text)') + ';margin-bottom:4px;' + (isResolved ? 'text-decoration:line-through;' : '');
@@ -8779,7 +8796,7 @@ function renderChangesTab(): string {
         const resolveBtnCompact = '<button data-dm-toggle-resolved="' + c.id + '" aria-label="' + (isResolved ? 'Reopen' : 'Resolve') + '" title="' + (isResolved ? 'Reopen' : 'Resolve') + '" style="padding:2px 8px;background:' + (isResolved ? 'var(--dm-btn-bg)' : 'rgba(34,197,94,0.18)') + ';border:1px solid ' + (isResolved ? 'var(--dm-btn-border)' : 'rgba(34,197,94,0.4)') + ';border-radius:3px;color:' + (isResolved ? 'var(--dm-text-secondary)' : 'rgb(34,197,94)') + ';cursor:pointer;font-size:9px;font-family:inherit;display:flex;align-items:center;gap:2px;">' + icon(isResolved ? 'rotateCcw' : 'checkCircle', 9) + ' ' + (isResolved ? 'Reopen' : 'Resolve') + '</button>';
         // Pin number badge — small chip mirroring the page pin so the user
         // can match panel ↔ overlay quickly.
-        const pinBadge = '<span title="Pin #' + ordinal + '" style="background:' + (isResolved ? '#A3A3A3' : '#FBBF24') + ';color:#000;font-weight:700;font-size:9px;padding:1px 6px;border-radius:9999px;flex-shrink:0;font-family:SF Mono,Monaco,monospace;">#' + ordinal + '</span>';
+        const pinBadge = '<span title="Pin #' + ordinal + '" style="background:' + (isResolved ? '#A3A3A3' : '#FBBF24') + ';color:#000;font-weight:700;font-size:9px;padding:1px 6px;border-radius:9999px;flex-shrink:0;font-family:inherit;">#' + ordinal + '</span>';
         if (isViewing) {
           return '<div class="dm-change-item" style="border-bottom:1px solid var(--dm-separator);background:' + (isResolved ? 'var(--dm-bg-secondary)' : 'var(--dm-purple-bg)') + ';opacity:' + (isResolved ? '0.85' : '1') + ';">' +
             '<div style="display:flex;align-items:center;gap:6px;padding:8px 12px 6px 28px;">' +
@@ -8805,7 +8822,7 @@ function renderChangesTab(): string {
           '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">' +
           resolveBtnCompact +
           '<button data-dm-edit-comment="' + c.id + '" aria-label="Edit comment" style="padding:2px 8px;background:rgba(139,92,246,0.12);border:1px solid var(--dm-purple-border);border-radius:3px;color:var(--dm-purple);cursor:pointer;font-size:9px;font-family:inherit;">Edit</button>' +
-          '<span style="margin-left:auto;font-size:9px;color:var(--dm-text-dim);font-family:SF Mono,Monaco,monospace;">' + escapeAttr(tsLabel + editedLabel) + '</span>' +
+          '<span style="margin-left:auto;font-size:9px;color:var(--dm-text-dim);font-family:inherit;">' + escapeAttr(tsLabel + editedLabel) + '</span>' +
           '</div></div>' +
           '<button class="dm-change-revert" data-dm-delete-comment="' + c.id + '" title="Delete comment" aria-label="Delete comment" style="background:none;border:none;color:var(--dm-text-muted);cursor:pointer;display:flex;padding:4px;flex-shrink:0;margin-top:2px;">' + icon('trash', 10) + '</button>' +
           '</div>';
@@ -8899,7 +8916,7 @@ function renderMcpServerCard(sS: string, sT: string, lS: string, activeBtn: stri
     // and Chrome would reject value="https://…" as non-numeric.
     body = '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="' + lS + '">WebSocket Port</span><input id="dm-mcp-ws-port" type="number" class="dm-input" data-dm-setting="wsPort" value="' + escapeAttr(String(mcpPort)) + '" style="width:80px;text-align:right;"/></div>' +
       '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="' + lS + '">Auto-connect</span><input id="dm-mcp-auto-connect" type="checkbox" data-dm-setting="autoConnect"' + (mcpAutoConnect ? ' checked' : '') + ' style="accent-color:var(--dm-accent);"/></div>' +
-      '<div style="font-size:9px;color:var(--dm-text-dimmer);margin-top:4px;line-height:1.4;">Port and auto-connect are stored locally. Run <code style="font-family:SF Mono,monospace;">npm start</code> in <code style="font-family:SF Mono,monospace;">packages/mcp-local</code> to bring up the bridge.</div>';
+      '<div style="font-size:9px;color:var(--dm-text-dimmer);margin-top:4px;line-height:1.4;">Port and auto-connect are stored locally. Run <code style="font-family:inherit;">npm start</code> in <code style="font-family:inherit;">packages/mcp-local</code> to bring up the bridge.</div>';
   } else {
     // Cloud + self-hosted share the same UI; only the URL field is
     // editable in self-hosted mode.
@@ -8909,7 +8926,7 @@ function renderMcpServerCard(sS: string, sT: string, lS: string, activeBtn: stri
 
     const urlField = isSelf
       ? '<div style="display:flex;flex-direction:column;gap:4px;"><span style="' + lS + '">Server URL</span><input id="dm-mcp-cloud-url" type="text" class="dm-input" data-dm-setting="cloudUrl" value="' + escapeAttr(mcpCloudUrl) + '" placeholder="https://your-deploy.vercel.app" style="font-size:10px;"/></div>'
-      : '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="' + lS + '">Server</span><span style="font-size:10px;color:var(--dm-text-secondary);font-family:SF Mono,monospace;">' + escapeAttr(mcpCloudUrl) + '</span></div>';
+      : '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="' + lS + '">Server</span><span style="font-size:10px;color:var(--dm-text-secondary);font-family:inherit;">' + escapeAttr(mcpCloudUrl) + '</span></div>';
 
     if (!hasToken) {
       body = urlField +
@@ -8924,11 +8941,11 @@ function renderMcpServerCard(sS: string, sT: string, lS: string, activeBtn: stri
         mcpServers: { 'design-mode': { type: 'http', url: mcpEndpoint, headers: { Authorization: 'Bearer ' + mcpCloudToken } } },
       }, null, 2);
       const tenantBadge = mcpCloudTenantId
-        ? '<span style="font-size:9px;color:var(--dm-text-dimmer);font-family:SF Mono,monospace;">' + escapeAttr(mcpCloudTenantId) + '</span>'
+        ? '<span style="font-size:9px;color:var(--dm-text-dimmer);font-family:inherit;">' + escapeAttr(mcpCloudTenantId) + '</span>'
         : '';
       body = urlField +
         '<div style="display:flex;align-items:center;gap:6px;justify-content:space-between;"><span style="' + lS + '">Token</span>' + tenantBadge + '</div>' +
-        '<div style="display:flex;align-items:center;gap:6px;background:var(--dm-input-bg);border:1px solid var(--dm-input-border);border-radius:6px;padding:6px 8px;"><code style="font-size:10px;font-family:SF Mono,monospace;color:var(--dm-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">' + escapeAttr(maskToken(mcpCloudToken)) + '</code><button data-dm-action="mcp-cloud-copy-token" title="Copy token" style="background:none;border:none;color:var(--dm-text-secondary);cursor:pointer;display:flex;padding:2px;">' + icon('copy', 11) + '</button></div>' +
+        '<div style="display:flex;align-items:center;gap:6px;background:var(--dm-input-bg);border:1px solid var(--dm-input-border);border-radius:6px;padding:6px 8px;"><code style="font-size:10px;font-family:inherit;color:var(--dm-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">' + escapeAttr(maskToken(mcpCloudToken)) + '</code><button data-dm-action="mcp-cloud-copy-token" title="Copy token" style="background:none;border:none;color:var(--dm-text-secondary);cursor:pointer;display:flex;padding:2px;">' + icon('copy', 11) + '</button></div>' +
         '<div style="display:flex;gap:6px;margin-top:6px;">' +
         '<button data-dm-action="mcp-cloud-copy-config" data-dm-payload="' + escapeAttr(mcpConfig) + '" style="flex:1;padding:6px 8px;background:var(--dm-btn-bg);border:1px solid var(--dm-btn-border);border-radius:5px;color:var(--dm-text-secondary);cursor:pointer;font-size:9px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px;">' + icon('copy', 10) + ' Copy MCP config</button>' +
         '</div>' +
@@ -8973,12 +8990,12 @@ function renderAgentCommandCard(sS: string, sT: string, lS: string): string {
   const rows = AGENT_TOOLS.map(t =>
     '<div style="display:flex;align-items:center;gap:8px;justify-content:space-between;">' +
     '<div style="min-width:0;"><div style="font-size:11px;color:var(--dm-text-secondary);">' + escapeAttr(t.label) + '</div>' +
-    '<code style="font-size:9px;color:var(--dm-text-dimmer);font-family:SF Mono,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;">' + escapeAttr(t.path) + '</code></div>' +
+    '<code style="font-size:9px;color:var(--dm-text-dimmer);font-family:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;">' + escapeAttr(t.path) + '</code></div>' +
     '<button data-dm-action="copy-agent-command" data-dm-tool="' + t.key + '" style="flex-shrink:0;padding:5px 8px;background:var(--dm-btn-bg);border:1px solid var(--dm-btn-border);border-radius:5px;color:var(--dm-text-secondary);cursor:pointer;font-size:9px;font-family:inherit;display:flex;align-items:center;gap:4px;">' + icon('copy', 10) + ' Copy</button>' +
     '</div>'
   ).join('');
   return '<div style="' + sS + '"><div style="' + sT + '">Set up your agent</div>' +
-    '<div style="font-size:9px;color:var(--dm-text-dimmer);margin-bottom:8px;line-height:1.4;">Copy the <code style="font-family:SF Mono,monospace;">/design-mode</code> command into your coding tool, then run it after editing. It reads your changes and comments over MCP and resolves them as it works.</div>' +
+    '<div style="font-size:9px;color:var(--dm-text-dimmer);margin-bottom:8px;line-height:1.4;">Copy the <code style="font-family:inherit;">/design-mode</code> command into your coding tool, then run it after editing. It reads your changes and comments over MCP and resolves them as it works.</div>' +
     '<div style="display:flex;flex-direction:column;gap:8px;">' + rows + '</div></div>';
 }
 
@@ -9033,7 +9050,7 @@ function renderSettingsView(): string {
     (() => {
       const swatch = (key: string, val: string) =>
         '<div style="display:flex;align-items:center;gap:8px;">' +
-          '<span style="font-size:10px;color:var(--dm-text-dim);font-family:SF Mono,Monaco,monospace;text-transform:uppercase;letter-spacing:0.4px;">' + escapeAttr(val.toUpperCase()) + '</span>' +
+          '<span style="font-size:10px;color:var(--dm-text-dim);font-family:inherit;text-transform:uppercase;letter-spacing:0.4px;">' + escapeAttr(val.toUpperCase()) + '</span>' +
           '<input type="color" data-dm-setting="' + key + '" value="' + escapeAttr(val) + '" style="width:28px;height:22px;border:1px solid var(--dm-input-border);border-radius:4px;cursor:pointer;background:none;padding:0;"/>' +
         '</div>';
       const row = (label: string, key: string, val: string) =>
@@ -9172,7 +9189,7 @@ function shortcutChips(sc: { key: string; modifiers: readonly string[] }): strin
     : { alt: 'Alt', ctrl: 'Ctrl', meta: '⌘', shift: 'Shift' };
   const keyLabel: Record<string, string> = { Escape: 'Esc', Delete: 'Del', ArrowUp: '↑', ArrowDown: '↓', Enter: 'Enter' };
   const parts = [...(sc.modifiers || []).map(m => modLabel[m] || m), keyLabel[sc.key] || sc.key.toUpperCase()];
-  const kbd = 'display:inline-flex;align-items:center;min-width:18px;height:20px;padding:0 6px;background:var(--dm-input-bg);border:1px solid var(--dm-input-border);border-bottom-width:2px;border-radius:4px;font-size:10px;font-weight:600;font-family:SF Mono,Monaco,monospace;color:var(--dm-text);justify-content:center;';
+  const kbd = 'display:inline-flex;align-items:center;min-width:18px;height:20px;padding:0 6px;background:var(--dm-input-bg);border:1px solid var(--dm-input-border);border-bottom-width:2px;border-radius:4px;font-size:10px;font-weight:600;font-family:inherit;color:var(--dm-text);justify-content:center;';
   // Mac uses glyphs with no separator (⌘⇧Z); other platforms join with "+".
   const sep = IS_MAC ? '<span style="display:inline-block;width:2px;"></span>' : '<span style="color:var(--dm-text-dim);font-size:9px;margin:0 1px;">+</span>';
   return parts.map(p => '<kbd style="' + kbd + '">' + escapeAttr(p) + '</kbd>').join(sep);
