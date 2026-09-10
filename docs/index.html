@@ -96,8 +96,10 @@
   .p-chg{display:flex;gap:8px;align-items:baseline;padding:6px 0;color:var(--muted);}
   .p-chg .d{flex:none;width:6px;height:6px;border-radius:50%;background:var(--tone);margin-top:5px;}
   .p-chg .el{color:var(--ink);}
-  .p-foot{display:flex;gap:8px;align-items:center;padding:11px 13px;}
-  .p-foot .cp{flex:1;text-align:center;background:var(--tone);color:var(--tone-fg);border-radius:9px;padding:9px;font-family:var(--display);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;}
+  .p-foot{display:flex;flex-direction:column;gap:7px;padding:11px 13px;}
+  .p-foot .skill{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--chip);border:1px solid var(--line-2);color:var(--muted);border-radius:9px;padding:8px;font-size:11px;}
+  .p-foot .skill svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;}
+  .p-foot .cp{align-self:stretch;text-align:center;background:var(--tone);color:var(--tone-fg);border-radius:9px;padding:9px;font-family:var(--display);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;}
 
   code{font-family:ui-monospace,Menlo,monospace;background:var(--surface-2);border:1px solid var(--line-2);border-radius:5px;padding:1px 6px;font-size:.9em;color:var(--ink);}
   .callout{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:18px;}
@@ -153,7 +155,7 @@
           <div class="p-chg"><span class="d"></span><div><span class="el">h2.welcome</span> · top 0 → −64px</div></div>
           <div class="p-chg"><span class="d"></span><div><span class="el">section.mission</span> · moved +21, +1px</div></div>
         </div>
-        <div class="p-foot"><span class="cp">Copy Prompt</span></div>
+        <div class="p-foot"><span class="skill"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Design inspect</span><span class="cp">Copy Prompt</span></div>
       </div>
     </div>
   </section>
